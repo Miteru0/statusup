@@ -1,7 +1,5 @@
 package com.statusup.statusup.models;
 
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,7 +10,7 @@ public class User {
     private String id;
     private String username;
     private String password;
-    private List<String> roles;
+    private String role;
 
     public String getId() {
         return id;
@@ -38,11 +36,12 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setRole(String role) {
+        this.role = role;
     }
+
 }
