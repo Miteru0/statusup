@@ -9,7 +9,9 @@ import java.util.List;
 
 import com.statusup.statusup.models.AccessLevel;
 import com.statusup.statusup.models.Calendar;
+import com.statusup.statusup.models.CalendarDTO;
 import com.statusup.statusup.models.Event;
+import com.statusup.statusup.models.ExceptionDTO;
 import com.statusup.statusup.models.Relationship;
 import com.statusup.statusup.repositories.CalendarRepository;
 import com.statusup.statusup.repositories.EventRepository;
@@ -72,12 +74,9 @@ public class CalendarService {
 
         List<Relationship> relationships = relationshipRepository.findAllByUserId(userId);
         if (ownershipUtil.getAccessLevel(relationships) == AccessLevel.FRIEND) {
-            return calendar;
+            return new CalendarDTO(calendar.getName(), calendar.getOwnerUsername());
         } else {
-            Calendar empty = new Calendar();
-            empty.setName("User didn't give you permission to look at his calendar");
-            empty.setOwnerUsername(ownershipUtil.getAccessLevel(relationships).name());
-            return empty;
+            return new ExceptionDTO("Authentication denied", "The access level is too low");
         }
     }
 
