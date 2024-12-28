@@ -42,6 +42,10 @@ public class Calendar {
         eventsIds.add(eventId);
     }
 
+    public void removeEventId(String eventId) {
+        eventsIds.remove(eventId);
+    }
+
     public String getName() {
         return name;
     }

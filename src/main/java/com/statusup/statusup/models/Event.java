@@ -15,7 +15,7 @@ public class Event {
     private LocalDate endDate;
     private String description;
     private AccessLevel accessLevel;
-    private boolean notificationEnabled;
+    private Boolean notificationEnabled;
 
     public String getId() {
         return id;
@@ -41,7 +41,7 @@ public class Event {
         this.description = description;
     }
 
-    public boolean isNotificationEnabled() {
+    public Boolean isNotificationEnabled() {
         return notificationEnabled;
     }
 

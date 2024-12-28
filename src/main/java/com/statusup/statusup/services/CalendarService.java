@@ -14,7 +14,7 @@ import com.statusup.statusup.models.Relationship;
 import com.statusup.statusup.repositories.CalendarRepository;
 import com.statusup.statusup.repositories.EventRepository;
 import com.statusup.statusup.repositories.RelationshipRepository;
-import com.statusup.statusup.utils.JwtUtil;
+import com.statusup.statusup.utils.OwnershipUtil;
 
 @Service
 public class CalendarService {
@@ -22,71 +22,90 @@ public class CalendarService {
     private CalendarRepository calendarRepository;
     private EventRepository eventRepository;
     private RelationshipRepository relationshipRepository;
-    private JwtUtil jwtUtil;
+    private OwnershipUtil ownershipUtil;
 
     public CalendarService(CalendarRepository calendarRepository, EventRepository eventRepository,
-            RelationshipRepository relationshipRepository, JwtUtil jwtUtil) {
+            RelationshipRepository relationshipRepository, OwnershipUtil ownershipUtil) {
         this.calendarRepository = calendarRepository;
         this.eventRepository = eventRepository;
         this.relationshipRepository = relationshipRepository;
-        this.jwtUtil = jwtUtil;
-    }
-
-    private boolean isOwner(Calendar calendar) {
-        return jwtUtil.getCurrentUserUsername().equals(calendar.getOwnerUsername());
-    }
-
-    private AccessLevel accessLevel(List<Relationship> relationships) {
-        String currentUserId = jwtUtil.getCurrentUserId();
-
-        
-        return relationships.stream()
-            .filter(relationship -> relationship.getFriendId().equals(currentUserId))
-            .map(Relationship::getAccessLevel)
-            .findFirst()
-            .orElse(AccessLevel.NONE);
+        this.ownershipUtil = ownershipUtil;
     }
 
     public String createCalendar(Calendar calendar) {
-        if (isOwner(calendar)) {
-            if (calendar.getEventsIds() == null) {
-                calendar.setEventsIds(new ArrayList<String>());
-            }
-            calendarRepository.save(calendar);
-            return "Successfully created calendar for user " + jwtUtil.getCurrentUserUsername();
+
+        if (calendar.getOwnerUsername() == null) { calendar.setOwnerUsername(ownershipUtil.getCurrentUserUsername()); }
+        
+        if (!ownershipUtil.isOwner(calendar)) {
+            return "Authentication failure";
         }
-        return "The ownerUsername doesn't pass to current username. Authentication failure";
+
+        calendar.setEventsIds(new ArrayList<String>());
+        calendarRepository.save(calendar);
+        return "Successfully created calendar";
+        
+    }
+
+    public String redactCalendar(String userId, String calendarId, Calendar newCalendar) {
+        Calendar calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
+        if (!ownershipUtil.isOwner(calendar)) {
+            return "Authentication failure";
+        }
+        updateCalendarFields(calendar, newCalendar);
+        calendarRepository.save(calendar);
+        return "Successfully redacted the calendar!";
+    }
+
+    private void updateCalendarFields(Calendar existingCalendar, Calendar newCalendar) {
+        if (newCalendar.getName() != null) {
+            existingCalendar.setName(newCalendar.getName());
+        }
+    }
+
+    public Object getCalendar(String userId, String calendarId) {
+        Calendar calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
+        if (ownershipUtil.isOwner(calendar)) {
+            return calendar;
+        }
+
+        List<Relationship> relationships = relationshipRepository.findAllByUserId(userId);
+        if (ownershipUtil.getAccessLevel(relationships) == AccessLevel.FRIEND) {
+            return calendar;
+        } else {
+            Calendar empty = new Calendar();
+            empty.setName("User didn't give you permission to look at his calendar");
+            empty.setOwnerUsername(ownershipUtil.getAccessLevel(relationships).name());
+            return empty;
+        }
+    }
+
+    public String deleteCalendar(String userId, String calendarId) {
+        Calendar calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
+
+        if (!ownershipUtil.isOwner(calendar)) {
+            return "Authentication failure";
+        }
+
+        eventRepository.deleteAllById(calendar.getEventsIds());
+        calendarRepository.delete(calendar);
+        return "Successfully deleted Calendar";
     }
 
     public String addEvent(String calendarId, Event event) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
-        if (isOwner(calendar)) {
-            eventRepository.save(event);
-            calendar.addEventId(event.getId());
-            calendarRepository.save(calendar);
-            return "Successfully added new event to the callendar";
-        }
-        return "The ownerUsername doesn't pass to current username. Authentication failure";
-    }
-
-    public Calendar getCalendar(String userId, String calendarId) {
-        Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
-        if (isOwner(calendar)) {
-            return calendar;
+        
+        if (ownershipUtil.isOwner(calendar)) {
+            return "Authentication failure";
         }
 
-        List<Relationship> relationships = relationshipRepository.findAllByUserId(userId);
-        if(accessLevel(relationships) == AccessLevel.FRIEND) {
-            return calendar;
-        }
-        else {
-            Calendar empty = new Calendar();
-            empty.setName("User didn't give you permission to look at his calendar");
-            empty.setOwnerUsername(accessLevel(relationships).name());
-            return empty;
-        }
+        eventRepository.save(event);
+        calendar.addEventId(event.getId());
+        calendarRepository.save(calendar);
+        return "Successfully added new event to the callendar";
     }
 
 }
