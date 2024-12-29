@@ -15,7 +15,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String toEmail, String token) {
         String subject = "Email Verification";
-        String verificationUrl = "http://https://statusup-347c42d4df93.herokuapp.com/register/verify?token=" + token;
+        String verificationUrl = "https://statusup.netlify.app/register/verify?token=" + token;
         String message = "Please verify your email by clicking the link: " + verificationUrl;
 
         SimpleMailMessage email = new SimpleMailMessage();

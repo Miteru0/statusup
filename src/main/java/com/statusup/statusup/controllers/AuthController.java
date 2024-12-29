@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.statusup.statusup.models.AuthRequest;
-import com.statusup.statusup.models.UserRegistrationDTO;
+import com.statusup.statusup.models.RegisterRequest;
 import com.statusup.statusup.services.RegistrationService;
 import com.statusup.statusup.utils.JwtUtil;
 
@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegistrationDTO user) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest user) {
         return registrationService.register(user);
     }
 

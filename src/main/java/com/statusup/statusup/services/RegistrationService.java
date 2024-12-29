@@ -6,15 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.statusup.statusup.exceptions.EmailTakenException;
 import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.exceptions.UsernameTakenException;
 import com.statusup.statusup.models.Role;
 import com.statusup.statusup.models.User;
-import com.statusup.statusup.models.UserRegistrationDTO;
+import com.statusup.statusup.models.RegisterRequest;
 import com.statusup.statusup.repositories.UserRepository;
 
 @Service
@@ -40,7 +37,7 @@ public class RegistrationService {
         return true;
     }
 
-    public ResponseEntity<?> register(UserRegistrationDTO registrationUser) {
+    public ResponseEntity<?> register(RegisterRequest registrationUser) {
 
         if (isUsernameAvailable(registrationUser.getUsername())) {
             throw new UsernameTakenException("Username is already taken");
