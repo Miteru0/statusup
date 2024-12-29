@@ -73,7 +73,7 @@ public class FriendRequestService {
         List<FriendRequest> friendRequests = Optional.ofNullable(friendRequestRepository
                 .findAllByReceiverUsername(jwtUtil.getCurrentUserUsername())).orElse(Collections.emptyList());
         if (friendRequests == null || friendRequests.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return friendRequests.stream().filter((list -> list.getRequestStatus() == RequestStatus.PENDING))
                 .collect(Collectors.toList());
@@ -83,7 +83,7 @@ public class FriendRequestService {
         List<FriendRequest> friendRequests = Optional.ofNullable(friendRequestRepository
                 .findAllBySenderUsername(jwtUtil.getCurrentUserUsername())).orElse(Collections.emptyList());
         if (friendRequests == null || friendRequests.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return friendRequests.stream().filter((list -> list.getRequestStatus() == RequestStatus.PENDING))
                 .collect(Collectors.toList());
