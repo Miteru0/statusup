@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.statusup.statusup.exceptions.AccessDeniedException;
-import com.statusup.statusup.exceptions.RelationshipAlreadyExistsException;
+import com.statusup.statusup.exceptions.AlreadyExistsException;
 import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.models.AccessLevel;
 import com.statusup.statusup.models.Relationship;
@@ -37,11 +37,24 @@ public class RelationshipService {
             throw new AccessDeniedException("You have to be owner to perform this task");
         }
         if (doesRelationshipExist(relationship)) {
-            throw new RelationshipAlreadyExistsException("Same relationship already exists!");
+            throw new AlreadyExistsException("Same relationship already exists!");
         }
         relationshipRepository.save(relationship);
         return ResponseEntity.status(HttpStatus.CREATED).body("Relation has been added successfully");
 
+    }
+
+    public void addFriends(String firstUsername, String secoundUsername) {
+        Relationship relationship1 = new Relationship();
+        relationship1.setUsername(firstUsername);
+        relationship1.setFriendUsername(secoundUsername);
+        relationship1.setAccessLevel(AccessLevel.FRIEND);
+        Relationship relationship2 = new Relationship();
+        relationship2.setUsername(secoundUsername);
+        relationship2.setFriendUsername(firstUsername);
+        relationship2.setAccessLevel(AccessLevel.FRIEND);
+        relationshipRepository.save(relationship1);
+        relationshipRepository.save(relationship2);
     }
 
     public ResponseEntity<?> changeRelationship(String relationshipId, AccessLevel newAccessLevel) {

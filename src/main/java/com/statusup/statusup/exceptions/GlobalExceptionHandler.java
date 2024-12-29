@@ -10,9 +10,9 @@ import com.statusup.statusup.models.ErrorResponse;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle RelationshipAlreadyExistsException
-    @ExceptionHandler(RelationshipAlreadyExistsException.class)
-    public ResponseEntity<?> handleRelationshipAlreadyExists(RelationshipAlreadyExistsException ex) {
+    // Handle AlreadyExistsException
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<?> handleRelationshipAlreadyExists(AlreadyExistsException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
