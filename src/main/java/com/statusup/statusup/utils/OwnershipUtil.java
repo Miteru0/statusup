@@ -31,10 +31,10 @@ public class OwnershipUtil {
     }
 
     public AccessLevel getAccessLevel(List<Relationship> relationships) {
-        String currentUserId = jwtUtil.getCurrentUserId();
+        String currentUserUsername = jwtUtil.getCurrentUserUsername();
 
         return relationships.stream()
-                .filter(relationship -> relationship.getFriendId().equals(currentUserId))
+                .filter(relationship -> relationship.getFriendUsername().equals(currentUserUsername))
                 .map(Relationship::getAccessLevel)
                 .findFirst()
                 .orElse(AccessLevel.NONE);
