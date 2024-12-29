@@ -10,6 +10,6 @@ import com.statusup.statusup.models.FriendRequest;
 public interface FriendRequestRepository extends MongoRepository<FriendRequest, String> {
     List<FriendRequest> findAllBySenderUsername(String senderUsername);
     List<FriendRequest> findAllByReceiverUsername(String receiverUsername);
-    boolean existsBySenderSenderUsername(String senderUsername);
+    boolean existsBySenderUsername(String senderUsername);
     boolean existsByReceiverUsername(String receiverUsername);
 }
