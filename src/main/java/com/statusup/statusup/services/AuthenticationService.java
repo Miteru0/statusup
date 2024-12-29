@@ -2,6 +2,7 @@ package com.statusup.statusup.services;
 
 import org.springframework.stereotype.Service;
 
+import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.models.User;
 import com.statusup.statusup.repositories.UserRepository;
 import com.statusup.statusup.utils.JwtUtil;
@@ -19,7 +20,7 @@ public class AuthenticationService {
 
     public String authenticate(String username, String password) {
         User user = userRepository.findByUsername(username)
-                                   .orElseThrow(() -> new RuntimeException("User not found"));
+                                   .orElseThrow(() -> new ResourceNotFoundException("User with username" + username + " not found"));
 
         // Compare password (use a password encoder for hashed passwords)
         if (!user.getPassword().equals(password)) {

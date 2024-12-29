@@ -2,6 +2,8 @@ package com.statusup.statusup.services;
 
 import org.springframework.stereotype.Service;
 
+import com.statusup.statusup.models.User;
+import com.statusup.statusup.models.UserDTO;
 import com.statusup.statusup.repositories.UserRepository;
 import com.statusup.statusup.utils.JwtUtil;
 
@@ -18,6 +20,16 @@ public class UserService {
 
     public String getCurrentUsername() {
         return jwtUtil.getCurrentUserUsername();
+    }
+
+    public UserDTO getUserInformation(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Couldn't find user with such username"));
+        return new UserDTO(user.getUsername(), user.getEmail());
+    }
+
+    public UserDTO getCurrentUserInformation() {
+        return getUserInformation(getCurrentUsername());
     }
 
 }

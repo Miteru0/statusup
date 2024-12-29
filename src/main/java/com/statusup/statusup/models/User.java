@@ -10,7 +10,10 @@ public class User {
     private String id;
     private String username;
     private String password;
-    private String role;
+    private String email;
+    private String verificationToken;
+    private boolean isEmailVerified;
+    private Role role;
 
     public String getId() {
         return id;
@@ -36,11 +39,35 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public boolean isEmailVerified() {
+        return isEmailVerified;
+    }
+
+    public void setEmailVerified(boolean isEmailVerified) {
+        this.isEmailVerified = isEmailVerified;
+    }
+
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
