@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Relationship {
     @Id
     private String id;
-    private String userId;
-    private String friendId;
+    private String userUsername;
+    private String friendUsername;
     private AccessLevel accessLevel;
 
     public String getId() {
@@ -19,22 +19,6 @@ public class Relationship {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getFriendId() {
-        return friendId;
-    }
-
-    public void setFriendId(String friendId) {
-        this.friendId = friendId;
-    }
-
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
@@ -43,6 +27,20 @@ public class Relationship {
         this.accessLevel = accessLevel;
     }
 
-    
+    public String getUserUsername() {
+        return userUsername;
+    }
+
+    public void setUserUsername(String userUsername) {
+        this.userUsername = userUsername;
+    }
+
+    public String getFriendUsername() {
+        return friendUsername;
+    }
+
+    public void setFriendUsername(String friendUsername) {
+        this.friendUsername = friendUsername;
+    }
 
 }

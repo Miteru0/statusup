@@ -32,7 +32,7 @@ public class EventService {
         this.ownershipUtil = ownershipUtil;
     }
 
-    public Object getEvent(String userId, String calendarId, String eventId) {
+    public Object getEvent(String username, String calendarId, String eventId) {
 
         if (!containsEvent(calendarId, eventId)) {
             return new ExceptionDTO("Non existent", "The calendar doesn't contatin such event");
@@ -47,7 +47,7 @@ public class EventService {
         }
 
         // Checking for relationships between current user and owner of calendar
-        List<Relationship> relationships = relationshipRepository.findAllByUserId(userId);
+        List<Relationship> relationships = relationshipRepository.findAllByUsername(username);
         AccessLevel userAccessLevel = ownershipUtil.getAccessLevel(relationships);
         AccessLevel eventAccessLevel = event.getAccessLevel();
 
@@ -69,7 +69,7 @@ public class EventService {
         return new ExceptionDTO("Authorization error", "Access level is too low");
     }
 
-    public String removeEvent(String userId, String calendarId, String eventId) {
+    public String removeEvent(String username, String calendarId, String eventId) {
         if (!ownershipUtil.isOwner(calendarId)) {
             return "Access denied.";
         }
@@ -86,7 +86,7 @@ public class EventService {
         return "Successfully removed the event!";
     }
 
-    public String redactEvent(String userId, String calendarId, String eventId, Event newEvent) {
+    public String redactEvent(String username, String calendarId, String eventId, Event newEvent) {
         if (!ownershipUtil.isOwner(calendarId)) {
             return "Access denied.";
         }

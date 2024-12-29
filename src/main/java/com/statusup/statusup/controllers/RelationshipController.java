@@ -32,9 +32,14 @@ public class RelationshipController {
         return relationshipService.addRelationship(relationship);
     }
 
-    @GetMapping("/{userId}")
-    public List<Relationship> getRelationshipByUserId(@PathVariable String userId) {
-        return relationshipService.getRelationshipByUserId(userId);
+    @GetMapping("/{username}")
+    public List<Relationship> getRelationshipByUsername(@PathVariable String username) {
+        return relationshipService.getRelationshipByUsername(username);
+    }
+
+    @GetMapping("/{username}/friends")
+    public List<String> getFriendsByUsername(@PathVariable String username) {
+        return relationshipService.getFriendsUsernamesByUsername(username);
     }
     
     @PutMapping("/{relationshipId}/{accessLevel}")

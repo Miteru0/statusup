@@ -8,8 +8,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.statusup.statusup.repositories.UserRepository;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -18,12 +16,6 @@ public class JwtUtil {
 
     private final String SECRET_KEY = "ylUSH5D7VADWezFY3OjkiAigyq5MEEEe";
     private final int EXPIRATION_TIME = 1000 * 60 * 60 * 10;
-
-    private UserRepository userRepository;
-
-    public JwtUtil(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     // Generate a JWT token
     public String generateToken(String username) {
@@ -76,10 +68,6 @@ public class JwtUtil {
             return (String) principal; // For cases where the principal is just the username
         }
         throw new IllegalStateException("Unexpected principal type: " + principal.getClass().getName());
-    }
-
-    public String getCurrentUserId() {
-        return userRepository.findByUsername(getCurrentUserUsername()).orElseThrow().getId();
     }
 
 }

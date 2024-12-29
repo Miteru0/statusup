@@ -23,19 +23,19 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @GetMapping("/{userId}/{calendarId}/{eventId}")
-    public Object getEvent(@PathVariable String userId, @PathVariable String calendarId, @PathVariable String eventId) {
-        return eventService.getEvent(userId, calendarId, eventId);
+    @GetMapping("/{username}/{calendarId}/{eventId}")
+    public Object getEvent(@PathVariable String username, @PathVariable String calendarId, @PathVariable String eventId) {
+        return eventService.getEvent(username, calendarId, eventId);
     }
 
-    @DeleteMapping("/{userId}/{calendarId}/{eventId}")
-    public Object removeEvent(@PathVariable String userId, @PathVariable String calendarId, @PathVariable String eventId) {
-        return eventService.removeEvent(userId, calendarId, eventId);
+    @DeleteMapping("/{username}/{calendarId}/{eventId}")
+    public Object removeEvent(@PathVariable String username, @PathVariable String calendarId, @PathVariable String eventId) {
+        return eventService.removeEvent(username, calendarId, eventId);
     }
 
-    @PutMapping("/{userId}/{calendarId}/{eventId}")
-    public Object redactEvent(@PathVariable String userId, @PathVariable String calendarId, @PathVariable String eventId, @RequestBody Event newEvent) {
-        return eventService.redactEvent(userId, calendarId, eventId, newEvent);
+    @PutMapping("/{username}/{calendarId}/{eventId}")
+    public Object redactEvent(@PathVariable String username, @PathVariable String calendarId, @PathVariable String eventId, @RequestBody Event newEvent) {
+        return eventService.redactEvent(username, calendarId, eventId, newEvent);
     }
 
 }

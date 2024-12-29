@@ -31,19 +31,19 @@ public class CalendarController {
         return calendarService.createCalendar(calendar);
     }
 
-    @GetMapping("/{userId}/{calendarId}")
-    public Object getCalendar(@PathVariable String userId, @PathVariable String calendarId) {
-        return calendarService.getCalendar(userId, calendarId);
+    @GetMapping("/{username}/{calendarId}")
+    public Object getCalendar(@PathVariable String username, @PathVariable String calendarId) {
+        return calendarService.getCalendar(username, calendarId);
     }
 
-    @DeleteMapping("/{userId}/{calendarId}")
-    public Object deleteCalendar(@PathVariable String userId, @PathVariable String calendarId) {
-        return calendarService.deleteCalendar(userId, calendarId);
+    @DeleteMapping("/{username}/{calendarId}")
+    public Object deleteCalendar(@PathVariable String username, @PathVariable String calendarId) {
+        return calendarService.deleteCalendar(username, calendarId);
     }
 
-    @PutMapping("{userId}/{calendarId}")
-    public Object redactCalendar(@PathVariable String userId, @PathVariable String calendarId, @RequestBody Calendar calendar) {
-        return calendarService.redactCalendar(userId, calendarId, calendar);
+    @PutMapping("{username}/{calendarId}")
+    public Object redactCalendar(@PathVariable String username, @PathVariable String calendarId, @RequestBody Calendar calendar) {
+        return calendarService.redactCalendar(username, calendarId, calendar);
     }
 
     @PostMapping("/{calendarId}")

@@ -1,6 +1,7 @@
 package com.statusup.statusup.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,15 @@ public class RelationshipService {
     private RelationshipRepository relationshipRepository;
     private JwtUtil jwtUtil;
 
-    public RelationshipService(RelationshipRepository relationshipRepository,
-            JwtUtil jwtUtil) {
+    
+
+    public RelationshipService(RelationshipRepository relationshipRepository, JwtUtil jwtUtil) {
         this.relationshipRepository = relationshipRepository;
         this.jwtUtil = jwtUtil;
     }
 
     private boolean isOwner(Relationship relationship) {
-        return jwtUtil.getCurrentUserId().equals(relationship.getUserId());
+        return jwtUtil.getCurrentUserUsername().equals(relationship.getUserUsername());
     }
 
     public String addRelationship(Relationship relationship) {
@@ -35,13 +37,13 @@ public class RelationshipService {
         }
         relationshipRepository.save(relationship);
         return "Successfully added a relationship";
-        
+
     }
 
     public String changeRelationship(String relationshipId, AccessLevel newAccessLevel) {
         Relationship relationship = relationshipRepository.findById(relationshipId)
                 .orElseThrow(() -> new RuntimeException("Couldn't find such relationship"));
-                
+
         if (!isOwner(relationship)) {
             return "Authentication failure";
         }
@@ -51,14 +53,17 @@ public class RelationshipService {
         return "Successfully changed a relationship";
     }
 
-    public List<Relationship> getRelationshipByUserId(String userId) {
-        return relationshipRepository.findAllByUserId(userId);
+    public List<Relationship> getRelationshipByUsername(String username) {
+        return relationshipRepository.findAllByUsername(username);
+    }
+
+    public List<String> getFriendsUsernamesByUsername(String username) {
+        return getRelationshipByUsername(username).stream().map(Relationship::getFriendUsername).collect(Collectors.toList());
     }
 
     private boolean doesRelationshipExist(Relationship relationship) {
-        return relationshipRepository.findAllByUserId(relationship.getUserId()).stream()
-                .anyMatch(existing -> existing.getFriendId().equals(relationship.getFriendId()));
+        return relationshipRepository.findAllByUsername(relationship.getUserUsername()).stream()
+                .anyMatch(existing -> existing.getFriendUsername().equals(relationship.getFriendUsername()));
     }
-    
 
 }

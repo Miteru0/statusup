@@ -48,7 +48,7 @@ public class CalendarService {
         
     }
 
-    public String redactCalendar(String userId, String calendarId, Calendar newCalendar) {
+    public String redactCalendar(String username, String calendarId, Calendar newCalendar) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
         if (!ownershipUtil.isOwner(calendar)) {
@@ -65,14 +65,14 @@ public class CalendarService {
         }
     }
 
-    public Object getCalendar(String userId, String calendarId) {
+    public Object getCalendar(String username, String calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
         if (ownershipUtil.isOwner(calendar)) {
             return calendar;
         }
 
-        List<Relationship> relationships = relationshipRepository.findAllByUserId(userId);
+        List<Relationship> relationships = relationshipRepository.findAllByUsername(username);
         if (ownershipUtil.getAccessLevel(relationships) == AccessLevel.FRIEND) {
             return new CalendarDTO(calendar.getName(), calendar.getOwnerUsername());
         } else {
@@ -80,7 +80,7 @@ public class CalendarService {
         }
     }
 
-    public String deleteCalendar(String userId, String calendarId) {
+    public String deleteCalendar(String username, String calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new NoSuchElementException("Calendar with id " + calendarId + " not found"));
 
