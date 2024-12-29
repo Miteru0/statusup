@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.apache.catalina.connector.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +29,7 @@ public class CalendarController {
     }
 
     @PostMapping()
-    public String createCalendar(@RequestBody Calendar calendar) {
+    public ResponseEntity<?> createCalendar(@RequestBody Calendar calendar) {
         return calendarService.createCalendar(calendar);
     }
 
@@ -47,7 +49,7 @@ public class CalendarController {
     }
 
     @PostMapping("/{calendarId}")
-    public String addEventToCalendar(@PathVariable String calendarId, @RequestBody Event event) {
+    public ResponseEntity<?> addEventToCalendar(@PathVariable String calendarId, @RequestBody Event event) {
         return calendarService.addEvent(calendarId, event);
     }
     

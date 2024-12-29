@@ -10,6 +10,30 @@ import com.statusup.statusup.models.ErrorResponse;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Handle RelationshipAlreadyExistsException
+    @ExceptionHandler(RelationshipAlreadyExistsException.class)
+    public ResponseEntity<?> handleRelationshipAlreadyExists(RelationshipAlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    }
+
+    // Handle AccessDeniedException
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage()));
+    }
+
+    // Handle InvalidCredentialsException
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
+
     // Handle ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex) {

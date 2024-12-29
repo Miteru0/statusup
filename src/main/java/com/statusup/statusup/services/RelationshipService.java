@@ -3,8 +3,13 @@ package com.statusup.statusup.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.statusup.statusup.exceptions.AccessDeniedException;
+import com.statusup.statusup.exceptions.RelationshipAlreadyExistsException;
+import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.models.AccessLevel;
 import com.statusup.statusup.models.Relationship;
 import com.statusup.statusup.repositories.RelationshipRepository;
@@ -27,30 +32,29 @@ public class RelationshipService {
         return jwtUtil.getCurrentUserUsername().equals(relationship.getUsername());
     }
 
-    public String addRelationship(Relationship relationship) {
+    public ResponseEntity<?> addRelationship(Relationship relationship) {
         if (!isOwner(relationship)) {
-            return "Authentication failure";
+            throw new AccessDeniedException("You have to be owner to perform this task");
         }
-
         if (doesRelationshipExist(relationship)) {
-            return "Relationship already exist!";
+            throw new RelationshipAlreadyExistsException("Same relationship already exists!");
         }
         relationshipRepository.save(relationship);
-        return "Successfully added a relationship";
+        return ResponseEntity.status(HttpStatus.CREATED).body("Relation has been added successfully");
 
     }
 
-    public String changeRelationship(String relationshipId, AccessLevel newAccessLevel) {
+    public ResponseEntity<?> changeRelationship(String relationshipId, AccessLevel newAccessLevel) {
         Relationship relationship = relationshipRepository.findById(relationshipId)
-                .orElseThrow(() -> new RuntimeException("Couldn't find such relationship"));
+                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find such relationship"));
 
         if (!isOwner(relationship)) {
-            return "Authentication failure";
+            throw new AccessDeniedException("You have to be owner to perform this task");
         }
 
         relationship.setAccessLevel(newAccessLevel);
         relationshipRepository.save(relationship);
-        return "Successfully changed a relationship";
+        return ResponseEntity.status(HttpStatus.OK).body("Relation has been changed successfully");
     }
 
     public List<Relationship> getRelationshipByUsername(String username) {

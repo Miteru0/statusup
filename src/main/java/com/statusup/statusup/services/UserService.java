@@ -2,6 +2,7 @@ package com.statusup.statusup.services;
 
 import org.springframework.stereotype.Service;
 
+import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.models.User;
 import com.statusup.statusup.models.UserDTO;
 import com.statusup.statusup.repositories.UserRepository;
@@ -24,7 +25,7 @@ public class UserService {
 
     public UserDTO getUserInformation(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Couldn't find user with such username"));
+                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user with such username"));
         return new UserDTO(user.getUsername(), user.getEmail());
     }
 

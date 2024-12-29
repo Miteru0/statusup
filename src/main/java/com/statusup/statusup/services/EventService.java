@@ -2,14 +2,17 @@ package com.statusup.statusup.services;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.statusup.statusup.exceptions.AccessDeniedException;
+import com.statusup.statusup.exceptions.ResourceNotFoundException;
 import com.statusup.statusup.models.AccessLevel;
 import com.statusup.statusup.models.Calendar;
 import com.statusup.statusup.models.Event;
 import com.statusup.statusup.models.EventAcquaintanceDTO;
 import com.statusup.statusup.models.EventFriendDTO;
-import com.statusup.statusup.models.ExceptionDTO;
 import com.statusup.statusup.models.Relationship;
 import com.statusup.statusup.repositories.CalendarRepository;
 import com.statusup.statusup.repositories.EventRepository;
@@ -35,10 +38,10 @@ public class EventService {
     public Object getEvent(String username, String calendarId, String eventId) {
 
         if (!containsEvent(calendarId, eventId)) {
-            return new ExceptionDTO("Non existent", "The calendar doesn't contatin such event");
+            throw new ResourceNotFoundException("Event in the calendar not found");
         }
 
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         // Checks if the current User owns the calendar (and if so gives all information
         // about calendar)
@@ -55,53 +58,54 @@ public class EventService {
             if (userAccessLevel == AccessLevel.FRIEND) {
                 return new EventFriendDTO(event.getName(), event.getStartDate(), event.getEndDate(),
                         event.getDescription());
-            } else {
-                return new ExceptionDTO("Authorization error", "Access level is too low");
+            } 
+            else {
+                throw new AccessDeniedException("The access level is too low");
             }
 
         } else if (eventAccessLevel == AccessLevel.ACQUAINTANCE) {
             if (userAccessLevel == AccessLevel.FRIEND || userAccessLevel == AccessLevel.ACQUAINTANCE) {
                 return new EventAcquaintanceDTO(event.getStartDate(), event.getEndDate());
-            } else {
-                return new ExceptionDTO("Authorization error", "Access level is too low");
+            } 
+            else {
+                throw new AccessDeniedException("The access level is too low");
             }
         }
-        return new ExceptionDTO("Authorization error", "Access level is too low");
+        throw new AccessDeniedException("The access level is too low");
     }
 
-    public String removeEvent(String username, String calendarId, String eventId) {
+    public ResponseEntity<?> removeEvent(String username, String calendarId, String eventId) {
         if (!ownershipUtil.isOwner(calendarId)) {
-            return "Access denied.";
+            throw new AccessDeniedException("You have to be owner to perform this task");
         }
         if (containsEvent(calendarId, eventId)) {
-            return "Calendar doesn't contain such event.";
+            throw new ResourceNotFoundException("Calendar doesn't contain this event");
         }
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new RuntimeException("Calendar not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Calendar not found"));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Calendar not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Calendar not found"));
         calendar.removeEventId(eventId);
         calendarRepository.save(calendar);
         eventRepository.delete(event);
-        return "Successfully removed the event!";
+        return ResponseEntity.status(HttpStatus.OK).body("Event has been deleted successfully");
     }
 
-    public String redactEvent(String username, String calendarId, String eventId, Event newEvent) {
+    public ResponseEntity<?> redactEvent(String username, String calendarId, String eventId, Event newEvent) {
         if (!ownershipUtil.isOwner(calendarId)) {
-            return "Access denied.";
+            throw new AccessDeniedException("You have to be owner to perform this task");
         }
-
         if (!containsEvent(calendarId, eventId)) {
-            return "Calendar doesn't contain such event.";
+            throw new ResourceNotFoundException("Calendar doesn't contain this event");
         }
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         updateEventFields(event, newEvent);
 
         eventRepository.save(event);
-        return "Successfully redacted the event!";
+        return ResponseEntity.status(HttpStatus.OK).body("Event has been redacted successfully");
     }
 
     private void updateEventFields(Event existingEvent, Event newEvent) {
@@ -127,7 +131,7 @@ public class EventService {
 
     private boolean containsEvent(String calendarId, String eventId) {
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new RuntimeException("Calendar not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Calendar not found"));
         return calendar.getEventsIds().contains(eventId);
     }
 
