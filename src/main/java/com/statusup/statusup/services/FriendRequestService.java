@@ -1,7 +1,9 @@
 package com.statusup.statusup.services;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -68,8 +70,8 @@ public class FriendRequestService {
     }
 
     public List<FriendRequest> getAllPendingReceivedFriendRequests() {
-        List<FriendRequest> friendRequests = friendRequestRepository
-                .findAllByReceiverUsername(jwtUtil.getCurrentUserUsername());
+        List<FriendRequest> friendRequests = Optional.ofNullable(friendRequestRepository
+                .findAllByReceiverUsername(jwtUtil.getCurrentUserUsername())).orElse(Collections.emptyList());
         if (friendRequests == null || friendRequests.isEmpty()) {
             return null;
         }
@@ -78,8 +80,8 @@ public class FriendRequestService {
     }
 
     public List<FriendRequest> getAllPendingSentFriendRequests() {
-        List<FriendRequest> friendRequests = friendRequestRepository
-                .findAllBySenderUsername(jwtUtil.getCurrentUserUsername());
+        List<FriendRequest> friendRequests = Optional.ofNullable(friendRequestRepository
+                .findAllBySenderUsername(jwtUtil.getCurrentUserUsername())).orElse(Collections.emptyList());
         if (friendRequests == null || friendRequests.isEmpty()) {
             return null;
         }
