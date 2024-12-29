@@ -39,10 +39,10 @@ public class RegistrationService {
 
     public ResponseEntity<?> register(RegisterRequest registrationUser) {
 
-        if (isUsernameAvailable(registrationUser.getUsername())) {
+        if (!isUsernameAvailable(registrationUser.getUsername())) {
             throw new UsernameTakenException("Username is already taken");
         }
-        if (isEmailAvailable(registrationUser.getEmail())) {
+        if (!isEmailAvailable(registrationUser.getEmail())) {
             throw new EmailTakenException("Email is already taken");
         }
         User user = new User();
@@ -66,11 +66,11 @@ public class RegistrationService {
     }
 
     private boolean isUsernameAvailable(String username) {
-        return !userRepository.existsByUsername(username);
+        return !(userRepository.existsByUsername(username));
     }
 
     private boolean isEmailAvailable(String email) {
-        return !userRepository.existsByEmail(email);
+        return !(userRepository.existsByEmail(email));
     }
 
     private String generateVerificationToken() {
