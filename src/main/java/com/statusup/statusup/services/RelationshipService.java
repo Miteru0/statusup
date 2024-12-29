@@ -24,7 +24,7 @@ public class RelationshipService {
     }
 
     private boolean isOwner(Relationship relationship) {
-        return jwtUtil.getCurrentUserUsername().equals(relationship.getUserUsername());
+        return jwtUtil.getCurrentUserUsername().equals(relationship.getUsername());
     }
 
     public String addRelationship(Relationship relationship) {
@@ -62,7 +62,7 @@ public class RelationshipService {
     }
 
     private boolean doesRelationshipExist(Relationship relationship) {
-        return relationshipRepository.findAllByUsername(relationship.getUserUsername()).stream()
+        return relationshipRepository.findAllByUsername(relationship.getUsername()).stream()
                 .anyMatch(existing -> existing.getFriendUsername().equals(relationship.getFriendUsername()));
     }
 
