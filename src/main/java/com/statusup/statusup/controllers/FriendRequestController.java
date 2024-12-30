@@ -30,6 +30,11 @@ public class FriendRequestController {
         return friendRequestService.getAllPendingSentFriendRequests();
     }
 
+    @GetMapping("/sent/test")
+    public String test() {
+        return test();
+    }
+
     @PostMapping("/send")
     public ResponseEntity<?> sendFriendRequest(@RequestParam String receiverUsername) {
         return friendRequestService.sendFriendRequest(receiverUsername);
