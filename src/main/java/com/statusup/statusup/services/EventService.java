@@ -35,7 +35,7 @@ public class EventService {
         this.ownershipUtil = ownershipUtil;
     }
 
-    public Object getEvent(String username, String calendarId, String eventId) {
+    public Object getEvent(String calendarId, String eventId) {
 
         if (!containsEvent(calendarId, eventId)) {
             throw new ResourceNotFoundException("Event in the calendar not found");
@@ -50,8 +50,7 @@ public class EventService {
         }
 
         // Checking for relationships between current user and owner of calendar
-        List<Relationship> relationships = relationshipRepository.findAllByUsername(username);
-        AccessLevel userAccessLevel = ownershipUtil.getAccessLevel(relationships);
+        AccessLevel userAccessLevel = ownershipUtil.getAccessLevelByCalendarId(calendarId);
         AccessLevel eventAccessLevel = event.getAccessLevel();
 
         if (eventAccessLevel == AccessLevel.FRIEND) {
@@ -124,8 +123,8 @@ public class EventService {
         if (newEvent.getAccessLevel() != null) {
             existingEvent.setAccessLevel(newEvent.getAccessLevel());
         }
-        if (newEvent.isNotificationEnabled() != null) {
-            existingEvent.setNotificationEnabled(newEvent.isNotificationEnabled());
+        if (newEvent.getNotificationEnabled() != null) {
+            existingEvent.setNotificationEnabled(newEvent.getNotificationEnabled());
         }
     }
 

@@ -10,6 +10,7 @@ public class Event {
 
     @Id
     private String id;
+    private String calendarId;
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -41,14 +42,6 @@ public class Event {
         this.description = description;
     }
 
-    public Boolean isNotificationEnabled() {
-        return notificationEnabled;
-    }
-
-    public void setNotificationEnabled(boolean notificationEnabled) {
-        this.notificationEnabled = notificationEnabled;
-    }
-
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -71,6 +64,22 @@ public class Event {
 
     public void setAccessLevel(AccessLevel accessLevel) {
         this.accessLevel = accessLevel;
+    }
+
+    public String getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(String calendarId) {
+        this.calendarId = calendarId;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 
 }

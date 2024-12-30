@@ -5,7 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.statusup.statusup.exceptions.AccessDeniedException;
 import com.statusup.statusup.exceptions.ResourceNotFoundException;
@@ -66,19 +69,31 @@ public class CalendarService {
         }
     }
 
-    public Object getCalendar(String username, String calendarId) {
+    public Object getCalendar(String calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Calendar with id " + calendarId + " not found"));
         if (ownershipUtil.isOwner(calendar)) {
             return calendar;
         }
-
-        List<Relationship> relationships = relationshipRepository.findAllByUsername(username);
-        if (ownershipUtil.getAccessLevel(relationships) == AccessLevel.FRIEND) {
-            return new CalendarDTO(calendar.getName(), calendar.getOwnerUsername());
+        AccessLevel accessLevel = ownershipUtil.getAccessLevelByUsername(calendar.getOwnerUsername());
+        if (accessLevel == AccessLevel.FRIEND) {
+            return new CalendarDTO(calendar.getId(), calendar.getName(), calendar.getOwnerUsername());
         } else {
             throw new AccessDeniedException("The access level is too low");
         }
+    }
+
+    public Object getAllCalendarsByUsername(String username) {
+        List<Calendar> calendars = Optional.ofNullable(calendarRepository.findAllByOwnerUsername(username)).orElse(Collections.emptyList());
+        if (ownershipUtil.isCurrentUser(username)) {
+            return calendars;
+        }
+        AccessLevel accessLevel = ownershipUtil.getAccessLevelByUsername(username);
+        List<CalendarDTO> calendarDTOs = calendars.stream()
+                .filter(calendar -> calendar.getAccessLevel() == accessLevel)
+                .map(CalendarDTO::new)
+                .collect(Collectors.toList());
+        return calendarDTOs;   
     }
 
     public ResponseEntity<?> deleteCalendar(String username, String calendarId) {
@@ -99,14 +114,48 @@ public class CalendarService {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Calendar with id " + calendarId + " not found"));
         
-        if (ownershipUtil.isOwner(calendar)) {
+        if (!ownershipUtil.isOwner(calendar)) {
             throw new AccessDeniedException("You have to be owner to perform this task");
         }
-
+        if (event.getAccessLevel() == null) {
+            event.setAccessLevel(calendar.getAccessLevel());
+        }
+        event.setCalendarId(calendarId);
         eventRepository.save(event);
         calendar.addEventId(event.getId());
         calendarRepository.save(calendar);
         return ResponseEntity.status(HttpStatus.CREATED).body("Event is added successfully");
+    }
+
+    public List<Event> getAllEventsByCalendarId(String calendarId) {
+        Calendar calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new ResourceNotFoundException("Calendar with id " + calendarId + " not found"));
+        List<Event> events = eventRepository.findAllByCalendarId(calendarId);
+        if (ownershipUtil.isOwner(calendarId)) {
+            return events;
+        }
+
+        AccessLevel userAccessLevel = ownershipUtil.getAccessLevelByUsername(calendar.getOwnerUsername());
+
+        if (userAccessLevel == AccessLevel.NONE) {
+            throw new AccessDeniedException("The access level is too low");
+        }
+
+        if (userAccessLevel == AccessLevel.FRIEND) {
+            List<Event> friendEvents = events.stream()
+            .filter(event -> event.getAccessLevel() == AccessLevel.FRIEND || event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
+            .collect(Collectors.toList());
+            return friendEvents;
+        }
+
+        if (userAccessLevel == AccessLevel.ACQUAINTANCE) {
+            List<Event> acquaintanceEvents = events.stream()
+            .filter(event -> event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
+            .collect(Collectors.toList());
+            return acquaintanceEvents;
+        }   
+
+        throw new RuntimeException("Something went wrong");
     }
 
 }

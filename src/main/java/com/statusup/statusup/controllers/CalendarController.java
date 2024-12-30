@@ -34,7 +34,7 @@ public class CalendarController {
 
     @GetMapping("/{username}/{calendarId}")
     public Object getCalendar(@PathVariable String username, @PathVariable String calendarId) {
-        return calendarService.getCalendar(username, calendarId);
+        return calendarService.getCalendar(calendarId);
     }
 
     @DeleteMapping("/{username}/{calendarId}")
@@ -52,5 +52,14 @@ public class CalendarController {
         return calendarService.addEvent(calendarId, event);
     }
     
+    @GetMapping("/{username}/calendars")
+    public Object getAllCalendar(@PathVariable String username) {
+        return calendarService.getAllCalendarsByUsername(username);
+    }
+
+    @GetMapping("/{username}/{calendarId}/events")
+    public Object getAllEventsByCalendarId(@PathVariable String username, @PathVariable String calendarId) {
+        return calendarService.getAllEventsByCalendarId(calendarId);
+    }
 
 }

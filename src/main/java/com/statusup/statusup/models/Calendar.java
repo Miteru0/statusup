@@ -12,6 +12,7 @@ public class Calendar {
     private String id;
     private String name;
     private String ownerUsername;
+    private AccessLevel accessLevel;
     private List<String> eventsIds;
 
     public String getId() {
@@ -52,6 +53,14 @@ public class Calendar {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public AccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public void setAccessLevel(AccessLevel accessLevel) {
+        this.accessLevel = accessLevel;
     }
     
 }

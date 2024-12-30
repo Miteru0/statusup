@@ -25,7 +25,7 @@ public class EventController {
 
     @GetMapping("/{username}/{calendarId}/{eventId}")
     public Object getEvent(@PathVariable String username, @PathVariable String calendarId, @PathVariable String eventId) {
-        return eventService.getEvent(username, calendarId, eventId);
+        return eventService.getEvent(calendarId, eventId);
     }
 
     @DeleteMapping("/{username}/{calendarId}/{eventId}")
