@@ -90,11 +90,28 @@ public class CalendarService {
             return calendars;
         }
         AccessLevel accessLevel = ownershipUtil.getAccessLevelByUsername(username);
-        List<CalendarDTO> calendarDTOs = calendars.stream()
-                .filter(calendar -> calendar.getAccessLevel() == accessLevel)
+
+        if (accessLevel == AccessLevel.NONE) {
+            throw new AccessDeniedException("The access level is too low");
+        }
+
+        if (accessLevel == AccessLevel.FRIEND) {
+            List<CalendarDTO> friendCalendarDTOs = calendars.stream()
+                .filter(calendar -> calendar.getAccessLevel() == AccessLevel.FRIEND || calendar.getAccessLevel() == AccessLevel.ACQUAINTANCE)
                 .map(CalendarDTO::new)
                 .collect(Collectors.toList());
-        return calendarDTOs;
+            return friendCalendarDTOs;
+        }
+
+        if (accessLevel == AccessLevel.ACQUAINTANCE) {
+            List<CalendarDTO> acquaintanceCalendarDTOs = calendars.stream()
+                .filter(calendar -> calendar.getAccessLevel() == AccessLevel.ACQUAINTANCE)
+                .map(CalendarDTO::new)
+                .collect(Collectors.toList());
+            return acquaintanceCalendarDTOs;
+        }
+        
+        throw new RuntimeException("Something went wrong");
     }
 
     public ResponseEntity<?> deleteCalendar(String username, String calendarId) {
