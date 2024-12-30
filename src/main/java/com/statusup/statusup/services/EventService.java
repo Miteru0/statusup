@@ -1,7 +1,5 @@
 package com.statusup.statusup.services;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,23 +11,19 @@ import com.statusup.statusup.models.Calendar;
 import com.statusup.statusup.models.Event;
 import com.statusup.statusup.models.EventAcquaintanceDTO;
 import com.statusup.statusup.models.EventFriendDTO;
-import com.statusup.statusup.models.Relationship;
 import com.statusup.statusup.repositories.CalendarRepository;
 import com.statusup.statusup.repositories.EventRepository;
-import com.statusup.statusup.repositories.RelationshipRepository;
 import com.statusup.statusup.utils.OwnershipUtil;
 
 @Service
 public class EventService {
 
-    private RelationshipRepository relationshipRepository;
     private CalendarRepository calendarRepository;
     private EventRepository eventRepository;
     private OwnershipUtil ownershipUtil;
 
-    public EventService(RelationshipRepository relationshipRepository, CalendarRepository calendarRepository,
-            EventRepository eventRepository, OwnershipUtil ownershipUtil) {
-        this.relationshipRepository = relationshipRepository;
+    public EventService(CalendarRepository calendarRepository, EventRepository eventRepository,
+            OwnershipUtil ownershipUtil) {
         this.calendarRepository = calendarRepository;
         this.eventRepository = eventRepository;
         this.ownershipUtil = ownershipUtil;
@@ -41,7 +35,8 @@ public class EventService {
             throw new ResourceNotFoundException("Event in the calendar not found");
         }
 
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         // Checks if the current User owns the calendar (and if so gives all information
         // about calendar)
@@ -56,16 +51,14 @@ public class EventService {
         if (eventAccessLevel == AccessLevel.FRIEND) {
             if (userAccessLevel == AccessLevel.FRIEND) {
                 return new EventFriendDTO(event);
-            } 
-            else {
+            } else {
                 throw new AccessDeniedException("The access level is too low");
             }
 
         } else if (eventAccessLevel == AccessLevel.ACQUAINTANCE) {
             if (userAccessLevel == AccessLevel.FRIEND || userAccessLevel == AccessLevel.ACQUAINTANCE) {
                 return new EventAcquaintanceDTO(event);
-            } 
-            else {
+            } else {
                 throw new AccessDeniedException("The access level is too low");
             }
         }
