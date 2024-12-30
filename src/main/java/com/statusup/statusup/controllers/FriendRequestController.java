@@ -20,6 +20,10 @@ public class FriendRequestController {
 
     private FriendRequestService friendRequestService;
 
+    public FriendRequestController(FriendRequestService friendRequestService) {
+        this.friendRequestService = friendRequestService;
+    }
+
     @GetMapping("/received")
     public List<FriendRequest> getAllPendingReceivedFriendRequests() {
         return friendRequestService.getAllPendingReceivedFriendRequests();
@@ -28,11 +32,6 @@ public class FriendRequestController {
     @GetMapping("/sent")
     public List<FriendRequest> getAllPendingSentFriendRequests() {
         return friendRequestService.getAllPendingSentFriendRequests();
-    }
-
-    @GetMapping("/sent/test")
-    public String test() {
-        return test();
     }
 
     @PostMapping("/send")
