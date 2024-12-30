@@ -16,10 +16,10 @@ import com.statusup.statusup.models.AccessLevel;
 import com.statusup.statusup.models.Calendar;
 import com.statusup.statusup.models.CalendarDTO;
 import com.statusup.statusup.models.Event;
-import com.statusup.statusup.models.Relationship;
+import com.statusup.statusup.models.EventAcquaintanceDTO;
+import com.statusup.statusup.models.EventFriendDTO;
 import com.statusup.statusup.repositories.CalendarRepository;
 import com.statusup.statusup.repositories.EventRepository;
-import com.statusup.statusup.repositories.RelationshipRepository;
 import com.statusup.statusup.utils.OwnershipUtil;
 
 @Service
@@ -27,28 +27,28 @@ public class CalendarService {
 
     private CalendarRepository calendarRepository;
     private EventRepository eventRepository;
-    private RelationshipRepository relationshipRepository;
     private OwnershipUtil ownershipUtil;
 
     public CalendarService(CalendarRepository calendarRepository, EventRepository eventRepository,
-            RelationshipRepository relationshipRepository, OwnershipUtil ownershipUtil) {
+            OwnershipUtil ownershipUtil) {
         this.calendarRepository = calendarRepository;
         this.eventRepository = eventRepository;
-        this.relationshipRepository = relationshipRepository;
         this.ownershipUtil = ownershipUtil;
     }
 
     public ResponseEntity<?> createCalendar(Calendar calendar) {
 
-        if (calendar.getOwnerUsername() == null) { calendar.setOwnerUsername(ownershipUtil.getCurrentUserUsername()); }
-        
+        if (calendar.getOwnerUsername() == null) {
+            calendar.setOwnerUsername(ownershipUtil.getCurrentUserUsername());
+        }
+
         if (!ownershipUtil.isOwner(calendar)) {
             throw new AccessDeniedException("You have to be owner to perform this task");
         }
 
         calendar.setEventsIds(new ArrayList<String>());
         calendarRepository.save(calendar);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Calendar created successfully");        
+        return ResponseEntity.status(HttpStatus.CREATED).body("Calendar created successfully");
     }
 
     public ResponseEntity<?> redactCalendar(String username, String calendarId, Calendar newCalendar) {
@@ -84,7 +84,8 @@ public class CalendarService {
     }
 
     public Object getAllCalendarsByUsername(String username) {
-        List<Calendar> calendars = Optional.ofNullable(calendarRepository.findAllByOwnerUsername(username)).orElse(Collections.emptyList());
+        List<Calendar> calendars = Optional.ofNullable(calendarRepository.findAllByOwnerUsername(username))
+                .orElse(Collections.emptyList());
         if (ownershipUtil.isCurrentUser(username)) {
             return calendars;
         }
@@ -93,7 +94,7 @@ public class CalendarService {
                 .filter(calendar -> calendar.getAccessLevel() == accessLevel)
                 .map(CalendarDTO::new)
                 .collect(Collectors.toList());
-        return calendarDTOs;   
+        return calendarDTOs;
     }
 
     public ResponseEntity<?> deleteCalendar(String username, String calendarId) {
@@ -113,7 +114,7 @@ public class CalendarService {
     public ResponseEntity<?> addEvent(String calendarId, Event event) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Calendar with id " + calendarId + " not found"));
-        
+
         if (!ownershipUtil.isOwner(calendar)) {
             throw new AccessDeniedException("You have to be owner to perform this task");
         }
@@ -127,7 +128,7 @@ public class CalendarService {
         return ResponseEntity.status(HttpStatus.CREATED).body("Event is added successfully");
     }
 
-    public List<Event> getAllEventsByCalendarId(String calendarId) {
+    public Object getAllEventsByCalendarId(String calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Calendar with id " + calendarId + " not found"));
         List<Event> events = eventRepository.findAllByCalendarId(calendarId);
@@ -142,18 +143,21 @@ public class CalendarService {
         }
 
         if (userAccessLevel == AccessLevel.FRIEND) {
-            List<Event> friendEvents = events.stream()
-            .filter(event -> event.getAccessLevel() == AccessLevel.FRIEND || event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
-            .collect(Collectors.toList());
+            List<EventFriendDTO> friendEvents = events.stream()
+                    .filter(event -> event.getAccessLevel() == AccessLevel.FRIEND
+                            || event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
+                    .map(EventFriendDTO::new)
+                    .collect(Collectors.toList());
             return friendEvents;
         }
 
         if (userAccessLevel == AccessLevel.ACQUAINTANCE) {
-            List<Event> acquaintanceEvents = events.stream()
-            .filter(event -> event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
-            .collect(Collectors.toList());
+            List<EventAcquaintanceDTO> acquaintanceEvents = events.stream()
+                    .filter(event -> event.getAccessLevel() == AccessLevel.ACQUAINTANCE)
+                    .map(EventAcquaintanceDTO::new)
+                    .collect(Collectors.toList());
             return acquaintanceEvents;
-        }   
+        }
 
         throw new RuntimeException("Something went wrong");
     }

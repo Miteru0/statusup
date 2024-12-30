@@ -55,8 +55,7 @@ public class EventService {
 
         if (eventAccessLevel == AccessLevel.FRIEND) {
             if (userAccessLevel == AccessLevel.FRIEND) {
-                return new EventFriendDTO(event.getName(), event.getStartDate(), event.getEndDate(),
-                        event.getDescription());
+                return new EventFriendDTO(event);
             } 
             else {
                 throw new AccessDeniedException("The access level is too low");
@@ -64,7 +63,7 @@ public class EventService {
 
         } else if (eventAccessLevel == AccessLevel.ACQUAINTANCE) {
             if (userAccessLevel == AccessLevel.FRIEND || userAccessLevel == AccessLevel.ACQUAINTANCE) {
-                return new EventAcquaintanceDTO(event.getStartDate(), event.getEndDate());
+                return new EventAcquaintanceDTO(event);
             } 
             else {
                 throw new AccessDeniedException("The access level is too low");
