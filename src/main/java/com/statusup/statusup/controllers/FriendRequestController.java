@@ -35,8 +35,8 @@ public class FriendRequestController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<?> sendFriendRequest(@RequestParam String receiverUsername) {
-        return friendRequestService.sendFriendRequest(receiverUsername);
+    public ResponseEntity<?> sendFriendRequest(@RequestParam String username) {
+        return friendRequestService.sendFriendRequest(username);
     }
 
     @PostMapping("/answer")
